@@ -19,6 +19,7 @@ public class Amoba extends JFrame implements ActionListener{
         private final JComboBox cbMeret = new JComboBox(new String[] {"3*3", "4*4", "5*5", "6*6", "7*7", "8*8", "9*9", "10*10", "11*11"});
         private JPanel pnJatekTer=new JPanel(new GridLayout(hossz, hossz));
         private Font betu=new Font("Comic Sans MS", Font.BOLD, 280/hossz);
+        private int utolsox, utolsoy;
         
     public Amoba() {
         inicializal(hossz);
@@ -34,6 +35,7 @@ public class Amoba extends JFrame implements ActionListener{
             seged = hossz - 1;
             meretetAllit(hossz);
         }
+        
         else  if (!nyerte)
             {
                 if (btAkt.getText().equals(""))
@@ -49,6 +51,9 @@ public class Amoba extends JFrame implements ActionListener{
                     ellenoriz();
                 }
                 else if (lepesDb > 8) {
+                    String[] LocationString = btAkt.getName().split(",");
+                    utolsox=  Integer.valueOf(LocationString[0]);
+                    utolsoy=  Integer.valueOf(LocationString[1]);
                     ellenoriz_5();
                 }
             }
@@ -89,9 +94,11 @@ public class Amoba extends JFrame implements ActionListener{
                 for (int j = 0; j < hossz; j++)
                 {
                     btGomb[i][j] = new JButton();
+                    btGomb[i][j].setName(String.valueOf(i) + "," + String.valueOf(j));
                     btGomb[i][j].setFont(betu);
                     btGomb[i][j].addActionListener(this);
                     pnJatekTer.add(btGomb[i][j]);
+                    
                 }
             }
     }
@@ -299,7 +306,26 @@ public class Amoba extends JFrame implements ActionListener{
     }
 
     private void jelKeresOszloponBelul() {
+        String utolsoKarakter = btGomb[utolsox][utolsoy].getText(); // megállapítja hogy o v. x volt az utolsó karakter
+        int i = 1;
+        while(utolsox + i <= hossz && !nyerte && btGomb[utolsox + i][utolsoy].getText()==utolsoKarakter ){
+            
+            if(i >= 5){
+                nyerte=true;
+                    nyerteskiir(utolsoKarakter);
+                    }
+            i++;
+        }
         
+        i = -1;
+        while(utolsox + i >= 0 && !nyerte && btGomb[utolsox + i][utolsoy].getText()==utolsoKarakter ){
+            
+            if(i <= -4){
+                nyerte=true;
+                    nyerteskiir(utolsoKarakter);
+                    }
+            i--;
+        }
     }
 
     public static void main(String[] args) {
