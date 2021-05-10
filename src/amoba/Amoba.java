@@ -308,9 +308,9 @@ public class Amoba extends JFrame implements ActionListener{
     private void jelKeresOszloponBelul() {
         String utolsoKarakter = btGomb[utolsox][utolsoy].getText(); // megállapítja hogy o v. x volt az utolsó karakter
         int i = 1; // indexelés szempontjából felveszünk egy i változót
-        while(utolsox + i <= hossz && !nyerte && btGomb[utolsox + i][utolsoy].getText() == utolsoKarakter ){ //ez nézi lefele hogy meg van-e 5 jel egymás alatt
+        while(utolsox + i <= hossz-1 && !nyerte && btGomb[utolsox + i][utolsoy].getText() == utolsoKarakter ){ //ez nézi lefele hogy meg van-e 5 jel egymás alatt
             
-            if(i >= 5){ //vizsgálja hogy tényleg 5 db jel van-e egymás alatt
+            if(i >= 4){ //vizsgálja hogy tényleg 5 db jel van-e egymás alatt
                     nyerteskiir(utolsoKarakter);// ez mondja meg hogy volt-e nyertes
                     }
             i++;
