@@ -19,6 +19,7 @@ public class Amoba extends JFrame implements ActionListener{
         private final JComboBox cbMeret = new JComboBox(new String[] {"3*3", "4*4", "5*5", "6*6", "7*7", "8*8", "9*9", "10*10", "11*11"});
         private JPanel pnJatekTer=new JPanel(new GridLayout(hossz, hossz));
         private Font betu=new Font("Comic Sans MS", Font.BOLD, 280/hossz);
+        private int utolsox, utolsoy;
         
     public Amoba() {
         inicializal(hossz);
@@ -49,6 +50,9 @@ public class Amoba extends JFrame implements ActionListener{
                     ellenoriz();
                 }
                 else if (lepesDb > 8) {
+                    String[] LocationString = btAkt.getName().split(",");//új
+                    utolsox =  Integer.valueOf(LocationString[0]);//új
+                    utolsoy =  Integer.valueOf(LocationString[1]);//új
                     ellenoriz_5();
                 }
             }
@@ -90,8 +94,9 @@ public class Amoba extends JFrame implements ActionListener{
                 {
                     btGomb[i][j] = new JButton();
                     btGomb[i][j].setFont(betu);
+                    btGomb[i][j].setName(i + "," + j);
                     btGomb[i][j].addActionListener(this);
-                    pnJatekTer.add(btGomb[i][j]);
+                    pnJatekTer.add(btGomb[i][j]); 
                 }
             }
     }
@@ -297,10 +302,122 @@ public class Amoba extends JFrame implements ActionListener{
     private void jelKeresSoronBelul() {
         
     }
-
+        //Változók globálisan láthatóvá tétele
+        boolean kezdoJelMegjlolt;
+        boolean kozepJel1Megjelolt;
+        boolean kozepJel2Megjelolt;
+        boolean vegJelMegjelolt;
+        String utolsoKarakter;
     private void jelKeresOszloponBelul() {
+        utolsoKarakter = btGomb[utolsox][utolsoy].getText(); // megállapítja hogy o v. x volt az utolsó karakter
+        int i = 1;
+        while(utolsox + i <= hossz-1 && !nyerte && btGomb[utolsox + i][utolsoy].getText()==utolsoKarakter ){
+            
+            if(i >= 4){
+                nyerte=true;
+                    nyerteskiir(utolsoKarakter);
+                    }
+            i++;
+        }
         
+        i = -1;
+        while(utolsox + i >= 0 && !nyerte && btGomb[utolsox + i][utolsoy].getText()==utolsoKarakter ){
+            
+            if(i <= -4){
+                nyerte=true;
+                    nyerteskiir(utolsoKarakter);
+                    }
+            i--;
+        }
+        
+        //kezdőérték adások
+        int kezdoJel=utolsox;
+        kezdoJelMegjlolt=false;
+        int kozepJel1=utolsox+2;
+        kozepJel1Megjelolt=false;
+        int kozepJel2=utolsox+3;
+        kozepJel2Megjelolt=false;
+        int vegJel=utolsox+4;
+        vegJelMegjelolt=false;
+        if(utolsox<hossz-3){//Tulindexelés kiküszöbölése 
+            int j = 0;//Seged változó lépés vizgálathoz
+            while(j < 3 && !nyerte) {//Vegig vizsgálja a 3 lehetséges állapotot és eldönti volt e nyertes
+                //Vizsgált értékek beállítása
+                kezdoJel-=1;
+                if(j==1){
+                    kozepJel1-=2;
+                }
+                else{
+                   kozepJel1-=1;
+                }
+                if(j==2){
+                    kozepJel2-=2;
+                }
+                else{
+                   kozepJel2-=1;
+                }
+                vegJel-=1;
+                megjeloltHelyek(kezdoJel,kozepJel1,kozepJel2,vegJel);//Segedmetodus meghívása
+                j++;
+            }
+        }
+        else{
+            //Kezdőértékek újra beállítása túlindexelés ellen
+            kezdoJel=utolsox-4;
+            kozepJel1=utolsox-3;
+            kozepJel2=utolsox-2;
+            vegJel=utolsox;
+            int j = 0;//Seged változó lépés vizgálathoz
+            while(j < 2 && !nyerte) {//Vegig vizsgálja a 3 lehetséges állapotot és eldönti volt e nyertes
+                 //Vizsgált értékek beállítása
+                kezdoJel+=1;
+                kozepJel1+=1;
+                if(j==1){
+                    kozepJel2+=2;
+                }
+                else{
+                   kozepJel2+=1;
+                }
+                vegJel+=1;
+                megjeloltHelyek(kezdoJel,kozepJel1,kozepJel2,vegJel);//Segedmetodus meghívása
+                j++;
+                
+            }
+        }
+        if(kezdoJelMegjlolt==true && kozepJel1Megjelolt==true && kozepJel2Megjelolt==true && vegJelMegjelolt==true){ //Vizsgáljuk hogy biztosan volt nyeres
+            nyerteskiir(utolsoKarakter);//Nyertes kiírás
+        }
     }
+
+    private void megjeloltHelyek(int kezdoJel,int kozepJel1, int kozepJel2, int vegJel){//Segéd metódus az üres helyek felderítésére
+        //Aktuális kattintáshoz képest vizsgálja van e a sorba üres mező
+        if(btGomb[kezdoJel][utolsoy].getText()==utolsoKarakter){
+            kezdoJelMegjlolt=true;
+        }
+        if(btGomb[kozepJel1][utolsoy].getText()==utolsoKarakter){
+            kozepJel1Megjelolt=true;
+        }
+        if(btGomb[kozepJel2][utolsoy].getText()==utolsoKarakter){
+            kozepJel2Megjelolt=true;
+        }
+        if(btGomb[vegJel][utolsoy].getText()==utolsoKarakter){
+            vegJelMegjelolt=true;
+        }
+        vanEnyertes();//Meghívása a segéd metódusnak a nyertes keresésre
+    }
+    private void vanEnyertes(){//Nyertes keresése
+        //Eldöntés vane nyertes
+        if(kezdoJelMegjlolt==true && kozepJel1Megjelolt==true && kozepJel2Megjelolt==true && vegJelMegjelolt==true){
+            nyerte=true;
+        }
+        else{//Ligikai értékek alap helyzetbe állítása a további nyizsgálatok érdekében
+            kezdoJelMegjlolt=false;
+            kozepJel1Megjelolt=false;
+            vegJelMegjelolt=false;
+            kozepJel2Megjelolt=false;
+        }
+    }
+    
 
     public static void main(String[] args) {
          Amoba amoba = new Amoba();
