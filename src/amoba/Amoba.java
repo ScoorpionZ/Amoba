@@ -19,7 +19,7 @@ public class Amoba extends JFrame implements ActionListener{
         private final JComboBox cbMeret = new JComboBox(new String[] {"3*3", "4*4", "5*5", "6*6", "7*7", "8*8", "9*9", "10*10", "11*11"});
         private JPanel pnJatekTer=new JPanel(new GridLayout(hossz, hossz));
         private Font betu=new Font("Comic Sans MS", Font.BOLD, 280/hossz);
-        private int utolsox, utolsoy;
+        private int utolsox, utolsoy; //globálisan felvszeük az utolsó sor és osztlop elemet
         
     public Amoba() {
         inicializal(hossz);
@@ -50,9 +50,9 @@ public class Amoba extends JFrame implements ActionListener{
                     ellenoriz();
                 }
                 else if (lepesDb > 8) {
-                    String[] LocationString = btAkt.getName().split(",");//új
-                    utolsox =  Integer.valueOf(LocationString[0]);//új
-                    utolsoy =  Integer.valueOf(LocationString[1]);//új
+                    String[] LocationString = btAkt.getName().split(","); // egy tömben, feldarabaolva eltároljuk a megálapított helyet
+                    utolsox=  Integer.valueOf(LocationString[0]); //a tömb 0. eleme lesz a sor
+                    utolsoy=  Integer.valueOf(LocationString[1]); // a tömb 1. eleme lesz az oszlop
                     ellenoriz_5();
                 }
             }
@@ -93,6 +93,7 @@ public class Amoba extends JFrame implements ActionListener{
                 for (int j = 0; j < hossz; j++)
                 {
                     btGomb[i][j] = new JButton();
+                    btGomb[i][j].setName(i + "," + j); //megálapítjuk a helyét(sor, osztlop) az aktuáliskattintásnak
                     btGomb[i][j].setFont(betu);
                     btGomb[i][j].setName(i + "," + j);
                     btGomb[i][j].addActionListener(this);
@@ -310,23 +311,21 @@ public class Amoba extends JFrame implements ActionListener{
         String utolsoKarakter;
     private void jelKeresOszloponBelul() {
         utolsoKarakter = btGomb[utolsox][utolsoy].getText(); // megállapítja hogy o v. x volt az utolsó karakter
-        int i = 1;
-        while(utolsox + i <= hossz-1 && !nyerte && btGomb[utolsox + i][utolsoy].getText()==utolsoKarakter ){
+        int i = 1; // indexelés szempontjából felveszünk egy i változót
+        while(utolsox + i <= hossz-1 && !nyerte && btGomb[utolsox + i][utolsoy].getText() == utolsoKarakter ){ //ez nézi lefele hogy meg van-e 5 jel egymás alatt
             
-            if(i >= 4){
-                nyerte=true;
-                    nyerteskiir(utolsoKarakter);
-                    }
+            if(i >= 4){ //vizsgálja hogy tényleg 5 db jel van-e egymás alatt
+                    nyerteskiir(utolsoKarakter);// ez mondja meg hogy volt-e nyertes
+            }
             i++;
         }
         
         i = -1;
-        while(utolsox + i >= 0 && !nyerte && btGomb[utolsox + i][utolsoy].getText()==utolsoKarakter ){
+        while(utolsox + i >= 0 && !nyerte && btGomb[utolsox + i][utolsoy].getText() == utolsoKarakter ){ //ez nézi felfele hogy meg van-e 5 jel egymás felett
             
-            if(i <= -4){
-                nyerte=true;
-                    nyerteskiir(utolsoKarakter);
-                    }
+            if(i <= -4){ //vizsgálja hogy tényleg 5 db jel van-e egymás felett
+                    nyerteskiir(utolsoKarakter);// ez mondja meg hogy volt-e nyertes
+            }
             i--;
         }
         
