@@ -5,10 +5,10 @@ import java.awt.event.*;
 import javax.swing.*;
 
 public class Amoba extends JFrame implements ActionListener{
-
+        JButton btAkt;
         private int lepesDb = 0;
         private boolean nyerte;
-        private static int hossz = 3;
+        private static int hossz = 6;
         private static int seged = hossz - 1;
         private JButton btGomb[][] = new JButton[hossz][hossz];
         private JButton btStart = new JButton("Új játék");
@@ -16,22 +16,24 @@ public class Amoba extends JFrame implements ActionListener{
         private JLabel lbMeret=new JLabel("Méret: ");
         private final String[] felirat={"0", "X"}; 
         private boolean dontetlen = false;
-        private final JComboBox cbMeret = new JComboBox(new String[] {"3*3", "4*4", "5*5", "6*6", "7*7", "8*8", "9*9", "10*10", "11*11"});
+        private final JComboBox cbMeret = new JComboBox(new String[] {"6*6", "7*7", "8*8", "9*9", "10*10", "11*11"});
         private JPanel pnJatekTer=new JPanel(new GridLayout(hossz, hossz));
         private Font betu=new Font("Comic Sans MS", Font.BOLD, 280/hossz);
         private int utolsox, utolsoy; //globálisan felvszeük az utolsó sor és osztlop elemet
-        
+        private double osszJatek=1;//összes jatek valtozo
+        private double statX=0;//jatekos lepeseinek valtozója
+        private double statO=0;//gép lepeseinek valtozója
+         
     public Amoba() {
         inicializal(hossz);
     }
-    
     @Override
     public void actionPerformed(ActionEvent e) {
-        JButton btAkt = (JButton)e.getSource();
-        String jatekos;
+        btAkt = (JButton)e.getSource();
+//        String jatekos;
         
         if(btAkt == btStart) {
-            hossz = cbMeret.getSelectedIndex()+3;
+            hossz = cbMeret.getSelectedIndex()+6;
             seged = hossz - 1;
             meretetAllit(hossz);
         }
@@ -40,20 +42,12 @@ public class Amoba extends JFrame implements ActionListener{
                 if (btAkt.getText().equals(""))
                 {
                     lepesDb++;
-                    jatekos=felirat[(lepesDb+1)%2];
-                    lbUzenet.setText((lepesDb+1)+". lépés: "+jatekos);
-                    btAkt.setText(felirat[lepesDb%2]);
+//                    jatekos=felirat[(lepesDb+1)%2];
+//                    lbUzenet.setText((lepesDb+1)+". lépés: "+jatekos);
+                    btAkt.setText("X");
                     //btAkt.setEnabled(false);
-                }
-                if (hossz < 6 && lepesDb > (hossz-1)*2)
-                {
-                    ellenoriz();
-                }
-                else if (lepesDb > 8) {
-                    String[] LocationString = btAkt.getName().split(","); // egy tömben, feldarabaolva eltároljuk a megálapított helyet
-                    utolsox=  Integer.valueOf(LocationString[0]); //a tömb 0. eleme lesz a sor
-                    utolsoy=  Integer.valueOf(LocationString[1]); // a tömb 1. eleme lesz az oszlop
-                    ellenoriz_5();
+                     vizsgalat();
+                    robotLep();
                 }
             }
 //        }
@@ -103,6 +97,9 @@ public class Amoba extends JFrame implements ActionListener{
     }
     
     private void ujrakezd() {
+        if(lepesDb>0){//össz játékok száma
+            osszJatek++;
+        }
         nyerte = false;
         lepesDb = 0;
             for (int i = 0; i < hossz; i++)
@@ -115,7 +112,6 @@ public class Amoba extends JFrame implements ActionListener{
         lbUzenet.setText((lepesDb+1)+". lépés: X");
         dontetlen = false;
     }
-
     private void ellenoriz() {
               
         //jobbra le átló
@@ -152,6 +148,8 @@ public class Amoba extends JFrame implements ActionListener{
     private void nyerteskiir(String nyert) {
         nyerte = true;
         JOptionPane.showMessageDialog(this, "Nyert az "+nyert+" jellel játszó játékos "+lepesDb+" lépésben!");
+        lepesekVizsgálata(nyert);
+        statisztika();//eredmenyek kiirasa
     }
 
     private void oszloponBelul() {
@@ -415,8 +413,51 @@ public class Amoba extends JFrame implements ActionListener{
             kozepJel2Megjelolt=false;
         }
     }
+    private void robotLep(){
+        //0-(hossz-1) ig mind két irányba . random helyre rakja a jelet
+        int i=0; // egy új változó
+        while(!nyerte && i<1){ //addig fut a ciklus amig nincs nyertes . 
+            int rand1 = (int) (Math.random() * seged); // a sor véletlen indexére rakja 
+            int rand2 = (int) (Math.random() * seged); // az oszlop véletlen indexére rakja
+            String gomb = btGomb[rand1][rand2].getText(); //Itt kérdezzük le a gomb helyét
+            while (gomb == "X"||gomb=="O") {  // Ha fölötte részen generált helyen van "X" vagy "O", akkor generáljon újat.
+                rand1 = (int) (Math.random() * seged); //új random sort generál
+                rand2 = (int) (Math.random() * seged);//új random oszlopot generál
+                gomb = btGomb[rand1][rand2].getText(); //itt kérdezi az új gomb helyét 
+            }
+            btGomb[rand1][rand2].setText(felirat[0]);      // Random helyre "O"-t rak
+            lepesDb++; // addig nőveljük a lépések számát amikor a gép rak jelet
+            i++;//nőveljük az i-t 
+        }
+    }
     public static void main(String[] args) {
          Amoba amoba = new Amoba();
+    }
+
+    private void vizsgalat() {
+      if (lepesDb > 8) {
+          
+                    String[] LocationString = btAkt.getName().split(","); // egy tömben, feldarabaolva eltároljuk a megálapított helyet
+                    utolsox=  Integer.valueOf(LocationString[0]); //a tömb 0. eleme lesz a sor
+                    utolsoy=  Integer.valueOf(LocationString[1]); // a tömb 1. eleme lesz az oszlop
+                    ellenoriz_5();
+                }
+    }
+
+    private void statisztika() {
+        double szazalekX =(statX/osszJatek)*100;//szazalekszamitas jatekosnak
+        double szazalekO =(statO/osszJatek)*100;//szazalekszamitas gepnek
+        //eredmények megjelenítese
+        JOptionPane.showMessageDialog(this, "Nyert a játékos "+Math.round(osszJatek)+"/"+Math.round(statX)+" játékban!\n"+"Nyerési szatisztikája: "+szazalekX+"%\n"+"Nyert a gép "+Math.round(osszJatek)+"/"+Math.round(statO)+" játékban!\n"+"Nyerési szatisztikája: "+szazalekO+"%");
+    }
+    
+    private void lepesekVizsgálata(String nyert) {//neresek számolása
+        if (nyert=="X") {//jatekes nyereseinek számolasa
+            statX++;
+        }
+        else{//gép nyereseinek számolasa
+            statO++;
+        }
     }
     
 }
