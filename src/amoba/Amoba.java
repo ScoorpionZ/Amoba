@@ -421,7 +421,6 @@ public class Amoba extends JFrame implements ActionListener{
     
     private void robotLep(){
 
-  
       //0-9 ig mind két irányba . random helyre rakja a jelet
             int i=0; // egy új változó
             while(!nyerte && i<1){ //addig fut a ciklus amig nincs nyertes . 
