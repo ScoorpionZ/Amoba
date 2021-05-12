@@ -3,7 +3,6 @@ package amoba;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
-
 public class Amoba extends JFrame implements ActionListener{
         JButton btAkt;
         private int lepesDb = 0;
@@ -19,6 +18,7 @@ public class Amoba extends JFrame implements ActionListener{
         private final JComboBox cbMeret = new JComboBox(new String[] {"6*6", "7*7", "8*8", "9*9", "10*10", "11*11"});
         private JPanel pnJatekTer=new JPanel(new GridLayout(hossz, hossz));
         private Font betu=new Font("Comic Sans MS", Font.BOLD, 280/hossz);
+        
         private int utolsox, utolsoy; //globálisan felvszeük az utolsó sor és osztlop elemet
         private double osszJatek=1;//összes jatek valtozo
         private double statX=0;//jatekos lepeseinek valtozója
@@ -42,9 +42,18 @@ public class Amoba extends JFrame implements ActionListener{
                 if (btAkt.getText().equals(""))
                 {
                     lepesDb++;
+
+//                    jatekos=felirat[(lepesDb+1)%2];
+//                    lbUzenet.setText((lepesDb+1)+". lépés: "+jatekos);
+                
+                    btAkt.setText(felirat[lepesDb%2]);
+//                    felirat.setForeground(Color.red);
+
 //                    jatekos=felirat[(lepesDb+1)%2];
 //                    lbUzenet.setText((lepesDb+1)+". lépés: "+jatekos);
                     btAkt.setText("X");
+
+                    btAkt.setBackground(Color.red);
                     //btAkt.setEnabled(false);
                      vizsgalat();
                     robotLep();
@@ -74,7 +83,7 @@ public class Amoba extends JFrame implements ActionListener{
         pnAlap.add(cbMeret);
         btStart.addActionListener(this);
         pnAlap.add(lbUzenet);
-        add(pnAlap, BorderLayout.NORTH);
+     
         gombokLetrehozasa();
         add(pnJatekTer);
         setVisible(true);
@@ -92,6 +101,7 @@ public class Amoba extends JFrame implements ActionListener{
                     btGomb[i][j].setName(i + "," + j);
                     btGomb[i][j].addActionListener(this);
                     pnJatekTer.add(btGomb[i][j]); 
+                   
                 }
             }
     }
@@ -110,6 +120,7 @@ public class Amoba extends JFrame implements ActionListener{
                 }
             }
         lbUzenet.setText((lepesDb+1)+". lépés: X");
+        lbUzenet.setText("Color:Red");
         dontetlen = false;
     }
     private void ellenoriz() {
@@ -147,9 +158,10 @@ public class Amoba extends JFrame implements ActionListener{
     
     private void nyerteskiir(String nyert) {
         nyerte = true;
-        JOptionPane.showMessageDialog(this, "Nyert az "+nyert+" jellel játszó játékos "+lepesDb+" lépésben!");
         lepesekVizsgálata(nyert);
-        statisztika();//eredmenyek kiirasa
+        statisztika(nyert);//eredmenyek kiirasa
+        
+        
     }
 
     private void oszloponBelul() {
@@ -307,12 +319,14 @@ public class Amoba extends JFrame implements ActionListener{
         boolean vegJelMegjelolt;
         String utolsoKarakter;
     private void jelKeresOszloponBelul() {
+        int kozepVizsgalatSzuksege = 0;//segéd változó a túlindexelés kiküszöbölésére
         utolsoKarakter = btGomb[utolsox][utolsoy].getText(); // megállapítja hogy o v. x volt az utolsó karakter
         int i = 1; // indexelés szempontjából felveszünk egy i változót
         while(utolsox + i <= hossz-1 && !nyerte && btGomb[utolsox + i][utolsoy].getText() == utolsoKarakter ){ //ez nézi lefele hogy meg van-e 5 jel egymás alatt
             
             if(i >= 4){ //vizsgálja hogy tényleg 5 db jel van-e egymás alatt
                     nyerteskiir(utolsoKarakter);// ez mondja meg hogy volt-e nyertes
+                    kozepVizsgalatSzuksege +=1;//növeljük a segédváltozót annak érdekében hogy a középvizsgálat ne fusson le, ha ez a vizsgálat már lefutott
             }
             i++;
         }
@@ -322,67 +336,70 @@ public class Amoba extends JFrame implements ActionListener{
             
             if(i <= -4){ //vizsgálja hogy tényleg 5 db jel van-e egymás felett
                     nyerteskiir(utolsoKarakter);// ez mondja meg hogy volt-e nyertes
+                    kozepVizsgalatSzuksege +=1;//növeljük a segédváltozót annak érdekében hogy a középvizsgálat ne fusson le, ha ez a vizsgálat már lefutott
             }
             i--;
         }
-        
-        //kezdőérték adások
-        int kezdoJel=utolsox;
-        kezdoJelMegjlolt=false;
-        int kozepJel1=utolsox+2;
-        kozepJel1Megjelolt=false;
-        int kozepJel2=utolsox+3;
-        kozepJel2Megjelolt=false;
-        int vegJel=utolsox+4;
-        vegJelMegjelolt=false;
-        if(utolsox<hossz-3){//Tulindexelés kiküszöbölése 
-            int j = 0;//Seged változó lépés vizgálathoz
-            while(j < 3 && !nyerte) {//Vegig vizsgálja a 3 lehetséges állapotot és eldönti volt e nyertes
-                //Vizsgált értékek beállítása
-                kezdoJel-=1;
-                if(j==1){
-                    kozepJel1-=2;
+        if(kozepVizsgalatSzuksege == 0){ //így csak akkor fut le amikor szükség van rá, ha a fel/le vizsgálat már lefutott, akkor nem fut le
+            //kezdőérték adások
+            int kezdoJel=utolsox;
+            kezdoJelMegjlolt=false;
+            int kozepJel1=utolsox+2;
+            kozepJel1Megjelolt=false;
+            int kozepJel2=utolsox+3;
+            kozepJel2Megjelolt=false;
+            int vegJel=utolsox+4;
+            vegJelMegjelolt=false;
+            if(utolsox<hossz-3){//Tulindexelés kiküszöbölése 
+                int j = 0;//Seged változó lépés vizgálathoz
+                while(j < 3 && !nyerte) {//Vegig vizsgálja a 3 lehetséges állapotot és eldönti volt e nyertes
+                    //Vizsgált értékek beállítása
+                    kezdoJel-=1;
+                    if(j==1){
+                        kozepJel1-=2;
+                    }
+                    else{
+                       kozepJel1-=1;
+                    }
+                    if(j==2){
+                        kozepJel2-=2;
+                    }
+                    else{
+                       kozepJel2-=1;
+                    }
+                    vegJel-=1;
+                    megjeloltHelyek(kezdoJel,kozepJel1,kozepJel2,vegJel);//Segedmetodus meghívása
+                    j++;
                 }
-                else{
-                   kozepJel1-=1;
+            }
+            else{
+                //Kezdőértékek újra beállítása túlindexelés ellen
+                kezdoJel=utolsox-4;
+                kozepJel1=utolsox-3;
+                kozepJel2=utolsox-2;
+                vegJel=utolsox;
+                int j = 0;//Seged változó lépés vizgálathoz
+                while(j < 2 && !nyerte) {//Vegig vizsgálja a 3 lehetséges állapotot és eldönti volt e nyertes
+                     //Vizsgált értékek beállítása
+                    kezdoJel+=1;
+                    kozepJel1+=1;
+                    if(j==1){
+                        kozepJel2+=2;
+                    }
+                    else{
+                       kozepJel2+=1;
+                    }
+                    vegJel+=1;
+                    megjeloltHelyek(kezdoJel,kozepJel1,kozepJel2,vegJel);//Segedmetodus meghívása
+                    j++;
+
                 }
-                if(j==2){
-                    kozepJel2-=2;
-                }
-                else{
-                   kozepJel2-=1;
-                }
-                vegJel-=1;
-                megjeloltHelyek(kezdoJel,kozepJel1,kozepJel2,vegJel);//Segedmetodus meghívása
-                j++;
+            }
+            if(kezdoJelMegjlolt==true && kozepJel1Megjelolt==true && kozepJel2Megjelolt==true && vegJelMegjelolt==true){ //Vizsgáljuk hogy biztosan volt nyeres
+                nyerteskiir(utolsoKarakter);//Nyertes kiírás
             }
         }
-        else{
-            //Kezdőértékek újra beállítása túlindexelés ellen
-            kezdoJel=utolsox-4;
-            kozepJel1=utolsox-3;
-            kozepJel2=utolsox-2;
-            vegJel=utolsox;
-            int j = 0;//Seged változó lépés vizgálathoz
-            while(j < 2 && !nyerte) {//Vegig vizsgálja a 3 lehetséges állapotot és eldönti volt e nyertes
-                 //Vizsgált értékek beállítása
-                kezdoJel+=1;
-                kozepJel1+=1;
-                if(j==1){
-                    kozepJel2+=2;
-                }
-                else{
-                   kozepJel2+=1;
-                }
-                vegJel+=1;
-                megjeloltHelyek(kezdoJel,kozepJel1,kozepJel2,vegJel);//Segedmetodus meghívása
-                j++;
-                
-            }
-        }
-        if(kezdoJelMegjlolt==true && kozepJel1Megjelolt==true && kozepJel2Megjelolt==true && vegJelMegjelolt==true){ //Vizsgáljuk hogy biztosan volt nyeres
-            nyerteskiir(utolsoKarakter);//Nyertes kiírás
-        }
+        kozepVizsgalatSzuksege = 0;//visszaálítjuk a kezdőértékére
     }
 
     private void megjeloltHelyek(int kezdoJel,int kozepJel1, int kozepJel2, int vegJel){//Segéd metódus az üres helyek felderítésére
@@ -414,17 +431,9 @@ public class Amoba extends JFrame implements ActionListener{
         }
     }
     private void robotLep(){
-<<<<<<< HEAD
-
-      //0-9 ig mind két irányba . random helyre rakja a jelet
-            int i=0; // egy új változó
-            while(!nyerte && i<1){ //addig fut a ciklus amig nincs nyertes . 
-        
-=======
         //0-(hossz-1) ig mind két irányba . random helyre rakja a jelet
         int i=0; // egy új változó
         while(!nyerte && i<1){ //addig fut a ciklus amig nincs nyertes . 
->>>>>>> a129ce21178b4a7ae80e00dd34f9a23550a601d4
             int rand1 = (int) (Math.random() * seged); // a sor véletlen indexére rakja 
             int rand2 = (int) (Math.random() * seged); // az oszlop véletlen indexére rakja
             String gomb = btGomb[rand1][rand2].getText(); //Itt kérdezzük le a gomb helyét
@@ -434,6 +443,7 @@ public class Amoba extends JFrame implements ActionListener{
                 gomb = btGomb[rand1][rand2].getText(); //itt kérdezi az új gomb helyét 
             }
             btGomb[rand1][rand2].setText(felirat[0]);      // Random helyre "O"-t rak
+            
             lepesDb++; // addig nőveljük a lépések számát amikor a gép rak jelet
             i++;//nőveljük az i-t 
         }
@@ -452,12 +462,15 @@ public class Amoba extends JFrame implements ActionListener{
                 }
     }
 
-    private void statisztika() {
+    private void statisztika(String nyert) {
+        
         double szazalekX =(statX/osszJatek)*100;//szazalekszamitas jatekosnak
         double szazalekO =(statO/osszJatek)*100;//szazalekszamitas gepnek
-        //eredmények megjelenítese
-        JOptionPane.showMessageDialog(this, "Nyert a játékos "+Math.round(osszJatek)+"/"+Math.round(statX)+" játékban!\n"+"Nyerési szatisztikája: "+szazalekX+"%\n"+"Nyert a gép "+Math.round(osszJatek)+"/"+Math.round(statO)+" játékban!\n"+"Nyerési szatisztikája: "+szazalekO+"%");
-    }
+        //eredmények megjelenítese(kiírás egyesítése)
+        JOptionPane.showMessageDialog(this, "Nyert az "+nyert+" jellel játszó játékos "+lepesDb+" lépésben!\n\n" + "Nyert a játékos "+Math.round(osszJatek)+"/"+Math.round(statX)+" játékban!\n"+"Nyerési szatisztikája: "+szazalekX+"%\n"+"Nyert a gép "+Math.round(osszJatek)+"/"+Math.round(statO)+" játékban!\n"+"Nyerési szatisztikája: "+szazalekO+"%");
+       
+       }
+    
     
     private void lepesekVizsgálata(String nyert) {//neresek számolása
         if (nyert=="X") {//jatekes nyereseinek számolasa
