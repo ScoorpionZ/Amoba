@@ -44,6 +44,7 @@ public class Amoba extends JFrame implements ActionListener{
                     jatekos=felirat[(lepesDb+1)%2];
                     lbUzenet.setText((lepesDb+1)+". lépés: "+jatekos);
                     btAkt.setText(felirat[lepesDb%2]);
+//                    felirat.setForeground(Color.red);
                     //btAkt.setEnabled(false);
                 }
                 if (hossz < 6 && lepesDb > (hossz-1)*2)
