@@ -141,7 +141,6 @@ public class Amoba extends JFrame implements ActionListener{
         //balra le átló
         jelKeresBalraLe("X");
         jelKeresBalraLe("0");
-
         //soron belüli ell...
         jelKeresSoronBelul();
         //oszlopon belüli ell.
@@ -416,8 +415,6 @@ public class Amoba extends JFrame implements ActionListener{
             kozepJel2Megjelolt=false;
         }
     }
-    
-
     public static void main(String[] args) {
          Amoba amoba = new Amoba();
     }
