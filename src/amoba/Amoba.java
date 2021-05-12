@@ -3,6 +3,7 @@ package amoba;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+
 public class Amoba extends JFrame implements ActionListener{
         JButton btAkt;
         private int lepesDb = 0;
@@ -18,7 +19,6 @@ public class Amoba extends JFrame implements ActionListener{
         private final JComboBox cbMeret = new JComboBox(new String[] {"6*6", "7*7", "8*8", "9*9", "10*10", "11*11"});
         private JPanel pnJatekTer=new JPanel(new GridLayout(hossz, hossz));
         private Font betu=new Font("Comic Sans MS", Font.BOLD, 280/hossz);
-        
         private int utolsox, utolsoy; //globálisan felvszeük az utolsó sor és osztlop elemet
         private double osszJatek=1;//összes jatek valtozo
         private double statX=0;//jatekos lepeseinek valtozója
@@ -45,15 +45,14 @@ public class Amoba extends JFrame implements ActionListener{
 
 //                    jatekos=felirat[(lepesDb+1)%2];
 //                    lbUzenet.setText((lepesDb+1)+". lépés: "+jatekos);
-                
                     btAkt.setText(felirat[lepesDb%2]);
+                    btAkt.setBackground(new java.awt.Color(0, 153, 255));//színezi az aktuális elem háttérszínét
 //                    felirat.setForeground(Color.red);
 
 //                    jatekos=felirat[(lepesDb+1)%2];
 //                    lbUzenet.setText((lepesDb+1)+". lépés: "+jatekos);
                     btAkt.setText("X");
 
-                    btAkt.setBackground(Color.red);
                     //btAkt.setEnabled(false);
                      vizsgalat();
                     robotLep();
@@ -73,7 +72,7 @@ public class Amoba extends JFrame implements ActionListener{
     }
     private void inicializal(int hossz) {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setTitle("Tic Tac Toe 2.0");
+        setTitle("Tic Tac Toe 3.0");
         setSize(700, 750);
 //        setResizable(false);
         setLocationRelativeTo(this);
@@ -83,7 +82,7 @@ public class Amoba extends JFrame implements ActionListener{
         pnAlap.add(cbMeret);
         btStart.addActionListener(this);
         pnAlap.add(lbUzenet);
-     
+        add(pnAlap, BorderLayout.NORTH);
         gombokLetrehozasa();
         add(pnJatekTer);
         setVisible(true);
@@ -101,7 +100,6 @@ public class Amoba extends JFrame implements ActionListener{
                     btGomb[i][j].setName(i + "," + j);
                     btGomb[i][j].addActionListener(this);
                     pnJatekTer.add(btGomb[i][j]); 
-                   
                 }
             }
     }
@@ -120,7 +118,6 @@ public class Amoba extends JFrame implements ActionListener{
                 }
             }
         lbUzenet.setText((lepesDb+1)+". lépés: X");
-        lbUzenet.setText("Color:Red");
         dontetlen = false;
     }
     private void ellenoriz() {
@@ -368,7 +365,9 @@ public class Amoba extends JFrame implements ActionListener{
                        kozepJel2-=1;
                     }
                     vegJel-=1;
-                    megjeloltHelyek(kezdoJel,kozepJel1,kozepJel2,vegJel);//Segedmetodus meghívása
+                    if(kezdoJel>-1 && vegJel<hossz ){//nem állítja a jeleket igazra míg kilóg a mezőértéke a pájáról
+                        megjeloltHelyek(kezdoJel,kozepJel1,kozepJel2,vegJel);//Segedmetodus meghívása
+                    }
                     j++;
                 }
             }
@@ -390,7 +389,9 @@ public class Amoba extends JFrame implements ActionListener{
                        kozepJel2+=1;
                     }
                     vegJel+=1;
-                    megjeloltHelyek(kezdoJel,kozepJel1,kozepJel2,vegJel);//Segedmetodus meghívása
+                    if(kezdoJel>-1 && vegJel<hossz ){//nem állítja a jeleket igazra míg kilóg a mezőértéke a pájáról
+                        megjeloltHelyek(kezdoJel,kozepJel1,kozepJel2,vegJel);//Segedmetodus meghívása
+                    }
                     j++;
 
                 }
@@ -434,16 +435,16 @@ public class Amoba extends JFrame implements ActionListener{
         //0-(hossz-1) ig mind két irányba . random helyre rakja a jelet
         int i=0; // egy új változó
         while(!nyerte && i<1){ //addig fut a ciklus amig nincs nyertes . 
-            int rand1 = (int) (Math.random() * seged); // a sor véletlen indexére rakja 
-            int rand2 = (int) (Math.random() * seged); // az oszlop véletlen indexére rakja
+            int rand1 = (int) (Math.random() * hossz); // a sor véletlen indexére rakja 
+            int rand2 = (int) (Math.random() * hossz); // az oszlop véletlen indexére rakja
             String gomb = btGomb[rand1][rand2].getText(); //Itt kérdezzük le a gomb helyét
-            while (gomb == "X"||gomb=="O") {  // Ha fölötte részen generált helyen van "X" vagy "O", akkor generáljon újat.
-                rand1 = (int) (Math.random() * seged); //új random sort generál
-                rand2 = (int) (Math.random() * seged);//új random oszlopot generál
+            while (gomb == "X"||gomb==felirat[0]) {  // Ha fölötte részen generált helyen van "X" vagy "O", akkor generáljon újat.
+                rand1 = (int) (Math.random() * hossz); //új random sort generál
+                rand2 = (int) (Math.random() * hossz);//új random oszlopot generál
                 gomb = btGomb[rand1][rand2].getText(); //itt kérdezi az új gomb helyét 
             }
             btGomb[rand1][rand2].setText(felirat[0]);      // Random helyre "O"-t rak
-            
+            btGomb[rand1][rand2].setBackground(new java.awt.Color(0, 230, 172));//színezi az aktuális elem háttérszínét
             lepesDb++; // addig nőveljük a lépések számát amikor a gép rak jelet
             i++;//nőveljük az i-t 
         }
@@ -470,7 +471,6 @@ public class Amoba extends JFrame implements ActionListener{
         JOptionPane.showMessageDialog(this, "Nyert az "+nyert+" jellel játszó játékos "+lepesDb+" lépésben!\n\n" + "Nyert a játékos "+Math.round(osszJatek)+"/"+Math.round(statX)+" játékban!\n"+"Nyerési szatisztikája: "+szazalekX+"%\n"+"Nyert a gép "+Math.round(osszJatek)+"/"+Math.round(statO)+" játékban!\n"+"Nyerési szatisztikája: "+szazalekO+"%");
        
        }
-    
     
     private void lepesekVizsgálata(String nyert) {//neresek számolása
         if (nyert=="X") {//jatekes nyereseinek számolasa
